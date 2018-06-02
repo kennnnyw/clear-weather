@@ -3,4 +3,18 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="morningPrimary">#F69D1E</color>
+    <color name="morningPrimaryDark">#B87516</color>
+    <color name="morningAccent">#FBD7A5</color>
+
+    <color name="dayPrimary">#68BDDC</color>
+    <color name="dayPrimaryDark">#4D8DA4</color>
+    <color name="dayAccent">#C2E4F1</color>
+
+    <color name="nightPrimary">#4C4D65</color>
+    <color name="nightPrimaryDark">#38394B</color>
+    <color name="nightAccent">#B7B7C1</color>
+
+    <color name="accent">#727272</color>
 </resources>
