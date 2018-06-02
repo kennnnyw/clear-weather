@@ -7,7 +7,7 @@
     tools:context="kennywong.me.weatherapp.MainActivity">
 
     <TextView
-        android:id="@+id/CurrentTempText"
+        android:id="@+id/currentTempText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/lato_black"
@@ -22,24 +22,26 @@
         app:layout_constraintVertical_bias="0.277" />
 
     <TextView
-        android:id="@+id/HighLowText"
+        android:id="@+id/highLowText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:alpha="0.5"
         android:fontFamily="@font/lato"
         android:text="0º/0º"
+        android:textColor="@android:color/white"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/CurrentTempText"
+        app:layout_constraintTop_toBottomOf="@+id/currentTempText"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/LocationText"
+        android:id="@+id/locationText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -54,22 +56,36 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/HighLowText"
+        app:layout_constraintTop_toBottomOf="@+id/highLowText"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/DateText"
+        android:id="@+id/dateText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:alpha="0.5"
         android:fontFamily="@font/lato"
         android:text="Date"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LocationText"
+        app:layout_constraintTop_toBottomOf="@+id/locationText"
         app:layout_constraintVertical_bias="0.0" />
+
+    <SearchView
+        android:id="@+id/searchBar"
+        android:layout_width="395dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

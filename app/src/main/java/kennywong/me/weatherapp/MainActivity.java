@@ -2,7 +2,9 @@ package kennywong.me.weatherapp;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
@@ -10,8 +12,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         updateTheme();
+        String today = getCurrentDate();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ((TextView)findViewById(R.id.dateText)).setText(today);
     }
 
     /**
@@ -36,10 +41,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Retrieves and returns the current date.
+     * @return Today's date in the SimpleDateFormat "EEEE, MMM d." (e.g. "Saturday, Jun 2.")
+     */
+    public String getCurrentDate(){
+        Calendar now = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d.");
+        System.out.println("DEBUG " + dateFormat.format(now.getTime()));
+        return dateFormat.format(now.getTime());
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         updateTheme();
+        String today = getCurrentDate();
         setContentView(R.layout.activity_main);
+        ((TextView)findViewById(R.id.dateText)).setText(today);
     }
 }
