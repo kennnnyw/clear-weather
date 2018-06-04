@@ -9,6 +9,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -26,7 +28,13 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -39,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView locationText;
     private Button refreshBtn;
+
+    private final String baseURL = "http://api.openweathermap.org/data/2.5/";
+    private final String current = "weather?";
+    private final String celsius = "&units=metric";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +117,52 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Connects to the Open Weather API and performs a GET request for the current weather data
+     * for the specified location.
+     * @param location the location that the weather data should be about.
+     * @return JSON string containing weather data for the specified location.
+     */
+    public String getCurrentWeather(String location){
+        URL url;
+        HttpURLConnection conn;
+        BufferedReader rd;
+        String fullURL = null;
+        fullURL = baseURL + current + "q=" + location + celsius + "&appid=" + getString(R.string.open_weather_api_key);
+        System.out.println("Sending data to: " + fullURL);
+        String line;
+        String result = "";
+        try {
+            url = new URL(fullURL);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            while ((line = rd.readLine()) != null) {
+                result += line;
+            }
+            rd.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //returns weather data as a json string
+        System.out.println("DEBUG: " + result);
+        return result;
+    }
+
+    /**
+     * Performs the getCurrentWeather request in a separate thread.
+     */
+    private class getCurrentWeatherTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... strings) {
+            return getCurrentWeather(strings[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String weatherJson) {
+        }
+    }
+
+    /**
      * Retrieves and returns the current date.
      * @return Today's date in the SimpleDateFormat "EEEE, MMM d." (e.g. "Saturday, Jun 2.")
      */
@@ -138,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
                             if (addresses != null || addresses.size() > 0) {
                                 for (int i = 0; i < addresses.size(); i++) {
                                     String locality = addresses.get(i).getLocality();
+                                    String country = addresses.get(i).getCountryCode();
                                     Double latitude = addresses.get(i).getLatitude();
                                     Double longitude = addresses.get(i).getLongitude();
 
@@ -149,18 +208,26 @@ public class MainActivity extends AppCompatActivity {
                                     SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
                                     SharedPreferences.Editor editor = locations.edit();
                                     editor.putString("lastLocation", locality);
+                                    editor.putString("lastCountry", country);
                                     editor.putString("lastLat", String.valueOf(latitude));
                                     editor.putString("lastLong", String.valueOf(longitude));
                                     editor.apply();
+
+                                    getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
+                                    weatherTask.execute(locality+","+country);
                                 }
                             }
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             showSnackbar((String) getText(R.string.no_location_detected));
                             SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
-                            SharedPreferences.Editor editor = locations.edit();
                             String lastLocation = locations.getString("lastLocation", "London");
+                            String lastCountry = locations.getString("lastCountry", "GB");
                             locationText.setText(lastLocation);
+
+
+                            getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
+                            weatherTask.execute(lastLocation+","+lastCountry);
                         }
                     }
                 });
