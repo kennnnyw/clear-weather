@@ -2,7 +2,7 @@
     <string name="app_name">Weather App</string>
 
     <string name="no_location_detected">
-        No location detected. Make sure location is enabled on the device.
+       Could not update location. Make sure location is enabled on the device.
     </string>
 
     <string name="permission_rationale">Location permission is needed for core functionality</string>

@@ -1,7 +1,9 @@
 package kennywong.me.weatherapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -118,13 +120,30 @@ public class MainActivity extends AppCompatActivity {
 
                             if (addresses != null || addresses.size() > 0) {
                                 for (int i = 0; i < addresses.size(); i++) {
-                                    System.out.println(addresses.get(i).getLocality());
-                                    locationText.setText(addresses.get(i).getLocality());
+                                    String locality = addresses.get(i).getLocality();
+                                    Double latitude = addresses.get(i).getLatitude();
+                                    Double longitude = addresses.get(i).getLongitude();
+
+                                    System.out.println(locality);
+                                    locationText.setText(locality);
+                                    // Save the location into a SharedPreferences file.
+                                    // This location will be displayed in the UI if location is services
+                                    // are disabled on next launch.
+                                    SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = locations.edit();
+                                    editor.putString("lastLocation", locality);
+                                    editor.putString("lastLat", String.valueOf(latitude));
+                                    editor.putString("lastLong", String.valueOf(longitude));
+                                    editor.apply();
                                 }
                             }
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             showSnackbar((String) getText(R.string.no_location_detected));
+                            SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = locations.edit();
+                            String lastLocation = locations.getString("lastLocation", "London");
+                            locationText.setText(lastLocation);
                         }
                     }
                 });
@@ -227,6 +246,10 @@ public class MainActivity extends AppCompatActivity {
                 getLastLocation();
             } else {
                 // Permission denied.
+                SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = locations.edit();
+                String lastLocation = locations.getString("lastLocation", "London");
+                locationText.setText(lastLocation);
 
                 // Notify the user via a SnackBar that they have rejected a core permission for the
                 // app, which makes the Activity useless. In a real app, core permissions would
