@@ -17,7 +17,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -34,7 +36,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private FusedLocationProviderClient fusedLocationClient;
     protected Location lastLocation;
+
     private TextView locationText;
+    private Button refreshBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,19 @@ public class MainActivity extends AppCompatActivity {
 
         locationText = findViewById(R.id.locationText);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        refreshBtn = findViewById(R.id.refreshButton);
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!checkPermissions()) {
+                    requestPermissions();
+                } else {
+                    getLastLocation();
+                    Toast toast = Toast.makeText(getApplicationContext(), "Refreshing location", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            }
+        });
     }
 
     @Override
@@ -246,6 +263,8 @@ public class MainActivity extends AppCompatActivity {
                 getLastLocation();
             } else {
                 // Permission denied.
+                // Since we cannot obtain the current location, the app will use the last location
+                // saved in the SharedPreferences file instead.
                 SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = locations.edit();
                 String lastLocation = locations.getString("lastLocation", "London");
