@@ -9,4 +9,7 @@
     <string name="permission_denied_explanation">Permission was denied, but is needed for core
         functionality.</string>
     <string name="settings">Settings</string>
+
+    <string name="current_temperature">%1$dº</string>
+    <string name="high_low_temperature">%1$dº/%2$dº</string>
 </resources>

@@ -10,7 +10,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -27,14 +26,13 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -45,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     protected Location lastLocation;
 
-    private TextView locationText;
+    private TextView locationText, currentTempText, highLowText;
     private Button refreshBtn;
 
     private final String baseURL = "http://api.openweathermap.org/data/2.5/";
@@ -71,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     requestPermissions();
                 } else {
                     getLastLocation();
-                    Toast toast = Toast.makeText(getApplicationContext(), "Refreshing location", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(getApplicationContext(), "Refreshing...", Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }
@@ -159,6 +157,18 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String weatherJson) {
+            // Update the UI to show correct temperature values.
+            Gson gson = new Gson();
+            CurrentWeather w = gson.fromJson(weatherJson, CurrentWeather.class);
+            int currentTemp = (int) Math.round(w.main.temp);
+            int high = w.main.temp_max;
+            int low = w.main.temp_min;
+
+            currentTempText = findViewById(R.id.currentTempText);
+            highLowText = findViewById(R.id.highLowText);
+
+            currentTempText.setText(getResources().getString(R.string.current_temperature, currentTemp));
+            highLowText.setText(getResources().getString(R.string.high_low_temperature, low, high));
         }
     }
 
