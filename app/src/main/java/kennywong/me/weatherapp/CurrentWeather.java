@@ -13,16 +13,10 @@ import java.util.List;
  */
 
 public class CurrentWeather {
-    public List<Weather> weather;
-    public Main main;
-    public String name;
-
-    class Weather {
-        public int id;
-        public String main;
-        public String description;
-        public String icon;
-    }
+    private List<Weather> weather;
+    private Main main;
+    private String name;
+    private long dt;
 
     class Main {
         public double temp;
@@ -30,6 +24,22 @@ public class CurrentWeather {
         public int humidity;
         public int temp_min;
         public int temp_max;
+    }
+
+    public List<Weather> getWeather() {
+        return weather;
+    }
+
+    public Main getMain() {
+        return main;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public long getDt() {
+        return dt;
     }
 }
 

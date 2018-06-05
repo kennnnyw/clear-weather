@@ -35,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,11 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     protected Location lastLocation;
 
-    private TextView locationText, currentTempText, highLowText;
-    private Button refreshBtn;
+    private TextView locationText;
 
     private final String baseURL = "http://api.openweathermap.org/data/2.5/";
-    private final String current = "weather?";
     private final String celsius = "&units=metric";
 
     @Override
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         locationText = findViewById(R.id.locationText);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        refreshBtn = findViewById(R.id.refreshButton);
+        Button refreshBtn = findViewById(R.id.refreshButton);
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -124,8 +123,7 @@ public class MainActivity extends AppCompatActivity {
         URL url;
         HttpURLConnection conn;
         BufferedReader rd;
-        String fullURL = null;
-        fullURL = baseURL + current + "q=" + location + celsius + "&appid=" + getString(R.string.open_weather_api_key);
+        String fullURL = baseURL + "weather?q=" + location + celsius + "&appid=" + getString(R.string.open_weather_api_key);
         System.out.println("Sending data to: " + fullURL);
         String line;
         String result = "";
@@ -160,15 +158,72 @@ public class MainActivity extends AppCompatActivity {
             // Update the UI to show correct temperature values.
             Gson gson = new Gson();
             CurrentWeather w = gson.fromJson(weatherJson, CurrentWeather.class);
-            int currentTemp = (int) Math.round(w.main.temp);
-            int high = w.main.temp_max;
-            int low = w.main.temp_min;
+            int currentTemp = (int) Math.round(w.getMain().temp);
+            int high = w.getMain().temp_max;
+            int low = w.getMain().temp_min;
 
-            currentTempText = findViewById(R.id.currentTempText);
-            highLowText = findViewById(R.id.highLowText);
+            TextView currentTempText = findViewById(R.id.currentTempText);
+            TextView highLowText = findViewById(R.id.highLowText);
 
             currentTempText.setText(getResources().getString(R.string.current_temperature, currentTemp));
             highLowText.setText(getResources().getString(R.string.high_low_temperature, low, high));
+        }
+    }
+
+    /**
+     * Connects to the Open Weather API and performs a GET request for the 5 day / 3 hour
+     * forecast for the specified location
+     * @param location the location that the forecast data should be about.
+     * @return JSON string containing forecast data for the specified location.
+     */
+    public String getForecast(String location){
+        URL url;
+        HttpURLConnection conn;
+        BufferedReader rd;
+        String fullURL = baseURL + "forecast?q=" + location + celsius + "&appid=" + getString(R.string.open_weather_api_key);
+        System.out.println("Sending data to: " + fullURL);
+        String line;
+        String result = "";
+        try {
+            url = new URL(fullURL);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            while ((line = rd.readLine()) != null) {
+                result += line;
+            }
+            rd.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //returns forecast data as a json string
+        System.out.println("DEBUG: " + result);
+        return result;
+    }
+
+    /**
+     * Performs the getForecast request in a separate thread.
+     */
+    private class getForecastTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... strings) {
+            return getForecast(strings[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String forecastJson) {
+            Gson gson = new Gson();
+            Forecast f = gson.fromJson(forecastJson, Forecast.class);
+            System.out.println(gson.toJson(f));
+
+            List<ForecastWeather> forecasted = f.getList();
+            for (ForecastWeather w : forecasted){
+                Calendar c = Calendar.getInstance();
+                c.setTime(new Date(w.getDt() * 1000));
+                System.out.println(c.get(Calendar.DAY_OF_MONTH) + " " + c.get(Calendar.MONTH)
+                    + " " + c.get(Calendar.HOUR_OF_DAY) + ":00" + " " + w.getMain().temp + "º"
+                    + " " + w.getWeather().get(0).getMain());
+            }
         }
     }
 
@@ -225,6 +280,9 @@ public class MainActivity extends AppCompatActivity {
 
                                     getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
                                     weatherTask.execute(locality+","+country);
+
+                                    getForecastTask forecastTask = new getForecastTask();
+                                    forecastTask.execute(locality+","+country);
                                 }
                             }
                         } else {
@@ -343,7 +401,6 @@ public class MainActivity extends AppCompatActivity {
                 // Since we cannot obtain the current location, the app will use the last location
                 // saved in the SharedPreferences file instead.
                 SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = locations.edit();
                 String lastLocation = locations.getString("lastLocation", "London");
                 locationText.setText(lastLocation);
 
