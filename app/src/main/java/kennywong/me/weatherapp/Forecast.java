@@ -23,5 +23,7 @@ public class Forecast {
         return city;
     }
 
-
+    public List<ForecastWeather> getPartialList(int n){
+        return list.subList(0, n);
+    }
 }

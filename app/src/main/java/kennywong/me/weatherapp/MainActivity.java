@@ -216,13 +216,13 @@ public class MainActivity extends AppCompatActivity {
             Forecast f = gson.fromJson(forecastJson, Forecast.class);
             System.out.println(gson.toJson(f));
 
-            List<ForecastWeather> forecasted = f.getList();
+            List<ForecastWeather> forecasted = f.getPartialList(5);
             for (ForecastWeather w : forecasted){
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date(w.getDt() * 1000));
                 System.out.println(c.get(Calendar.DAY_OF_MONTH) + " " + c.get(Calendar.MONTH)
                     + " " + c.get(Calendar.HOUR_OF_DAY) + ":00" + " " + w.getMain().temp + "º"
-                    + " " + w.getWeather().get(0).getMain());
+                    + " " + w.getWeather().get(0).getMain() + " " + w.getWeather().get(0).getIcon());
             }
         }
     }
@@ -296,6 +296,9 @@ public class MainActivity extends AppCompatActivity {
 
                             getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
                             weatherTask.execute(lastLocation+","+lastCountry);
+
+                            getForecastTask forecastTask = new getForecastTask();
+                            forecastTask.execute(lastLocation+","+lastCountry);
                         }
                     }
                 });
