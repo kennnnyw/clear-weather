@@ -14,7 +14,8 @@
 
     <color name="nightPrimary">#4C4D65</color>
     <color name="nightPrimaryDark">#38394B</color>
-    <color name="nightAccent">#B7B7C1</color>
+    <color name="nightAccent">#b7b7c1</color>
 
+    <color name="transparent">#40000000</color>
     <color name="accent">#727272</color>
 </resources>

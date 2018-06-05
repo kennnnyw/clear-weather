@@ -14,6 +14,11 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +32,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
+
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
 
     private final String baseURL = "http://api.openweathermap.org/data/2.5/";
     private final String celsius = "&units=metric";
+
+    private ViewPager forecastsView;
+    private PagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        forecastsView = findViewById(R.id.forecastsView);
+        pagerAdapter = new ForecastAdapter(getSupportFragmentManager());
+        forecastsView.setAdapter(pagerAdapter);
+
     }
 
     @Override
