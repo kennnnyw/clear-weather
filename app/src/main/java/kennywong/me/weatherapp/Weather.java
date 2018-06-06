@@ -1,10 +1,12 @@
 package kennywong.me.weatherapp;
 
+import java.io.Serializable;
+
 /**
  * Created by kennywong on 05/06/2018.
  */
 
-public class Weather {
+public class Weather implements Serializable{
     private int id;
     private String main;
     private String description;

@@ -1,5 +1,6 @@
 package kennywong.me.weatherapp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +25,8 @@ public class Forecast {
     }
 
     public List<ForecastWeather> getPartialList(int n){
-        return list.subList(0, n);
+        ArrayList<ForecastWeather> partialForecast = new ArrayList<ForecastWeather>(list.subList(0, n));
+        //return list.subList(0, n);
+        return partialForecast;
     }
 }

@@ -83,11 +83,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        forecastsView = findViewById(R.id.forecastsView);
-        pagerAdapter = new ForecastAdapter(getSupportFragmentManager());
-        forecastsView.setAdapter(pagerAdapter);
-
     }
 
     @Override
@@ -104,6 +99,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    public void setupForecasts(List<ForecastWeather> f){
+        forecastsView = findViewById(R.id.forecastsView);
+        pagerAdapter = new ForecastAdapter(getSupportFragmentManager(), f);
+        forecastsView.setAdapter(pagerAdapter);
     }
 
     /**
@@ -232,6 +233,10 @@ public class MainActivity extends AppCompatActivity {
             System.out.println(gson.toJson(f));
 
             List<ForecastWeather> forecasted = f.getPartialList(5);
+            // passing the sub list to the fragment manager
+            setupForecasts(forecasted);
+
+            //for debug
             for (ForecastWeather w : forecasted){
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date(w.getDt() * 1000));
