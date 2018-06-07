@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ public class Forecast implements Serializable{
         return partialForecast;
     }
 
-    public int getDailyAverage(int d){
+    public int getDailyAverageTemp(int d){
         float aveTemp = 0;
         int count = 0;
         Calendar c = Calendar.getInstance();
@@ -43,23 +44,51 @@ public class Forecast implements Serializable{
         // get the day of the month
         int dayOfInterest = c.get(Calendar.DAY_OF_MONTH);
 
-        // select the weather information from the list about the dayOfInterest only.
+        // select the temperature information from the list about the dayOfInterest only.
         for (ForecastWeather f : list){
             c.setTime(new Date(f.getDt() * 1000));
             if (c.get(Calendar.DAY_OF_MONTH) == dayOfInterest){
-                // DEBUG printing
-                System.out.println(c.get(Calendar.DAY_OF_MONTH) + " " + c.get(Calendar.MONTH)
-                        + " " + c.get(Calendar.HOUR_OF_DAY) + ":00" + " " + f.getMain().temp + "º "
-                        + f.getWeather().get(0).getMain() + " " + f.getWeather().get(0).getIcon());
-
                 aveTemp += f.getMain().temp;
                 count++;
             }
         }
 
+        getDailyConditions(d);
         aveTemp /= count;
-
-        System.out.println("DEBUG: Avg Temp = " + Math.round(aveTemp) + ".");
         return Math.round(aveTemp);
+    }
+
+    public String getDailyConditions(int d){
+        HashMap<String, Integer> occurrences = new HashMap<>();
+        Calendar c = Calendar.getInstance();
+
+        // set the calendar to "d" days in advance from the current date.
+        c.add(Calendar.DATE, d);
+        // get the day of the month
+        int dayOfInterest = c.get(Calendar.DAY_OF_MONTH);
+
+        for (ForecastWeather f : list){
+            c.setTime(new Date(f.getDt() * 1000));
+            if (c.get(Calendar.DAY_OF_MONTH) == dayOfInterest){
+                String weather = f.getWeather().get(0).getMain();
+                if (!occurrences.containsKey(weather)){
+                    occurrences.put(weather, 1);
+                } else {
+                    occurrences.put(weather, occurrences.get(weather) + 1);
+                }
+            }
+        }
+
+        // determine which condition occurs the most
+        String avg = "";
+        int max = 0;
+        for (String key : occurrences.keySet()){
+            if (occurrences.get(key) > max){
+                max = occurrences.get(key);
+                avg = key;
+            }
+        }
+
+        return avg.toLowerCase();
     }
 }

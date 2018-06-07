@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -78,7 +79,7 @@ public class ForecastFragment extends Fragment {
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
         temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(0).getMain().temp)));
-        icon.setImageDrawable(selectIcon(forecastWeatherList.get(0).getWeather().get(0).getIcon()));
+        icon.setImageDrawable(selectIconByName(forecastWeatherList.get(0).getWeather().get(0).getIcon()));
 
         // second entry
         c.setTime(new Date(forecastWeatherList.get(1).getDt() * 1000));
@@ -88,7 +89,7 @@ public class ForecastFragment extends Fragment {
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
         temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(1).getMain().temp)));
-        icon.setImageDrawable(selectIcon(forecastWeatherList.get(1).getWeather().get(0).getIcon()));
+        icon.setImageDrawable(selectIconByName(forecastWeatherList.get(1).getWeather().get(0).getIcon()));
 
         // third entry
         c.setTime(new Date(forecastWeatherList.get(2).getDt() * 1000));
@@ -98,7 +99,7 @@ public class ForecastFragment extends Fragment {
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
         temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(2).getMain().temp)));
-        icon.setImageDrawable(selectIcon(forecastWeatherList.get(2).getWeather().get(0).getIcon()));
+        icon.setImageDrawable(selectIconByName(forecastWeatherList.get(2).getWeather().get(0).getIcon()));
 
         // fourth entry
         c.setTime(new Date(forecastWeatherList.get(3).getDt() * 1000));
@@ -108,7 +109,7 @@ public class ForecastFragment extends Fragment {
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
         temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(3).getMain().temp)));
-        icon.setImageDrawable(selectIcon(forecastWeatherList.get(3).getWeather().get(0).getIcon()));
+        icon.setImageDrawable(selectIconByName(forecastWeatherList.get(3).getWeather().get(0).getIcon()));
 
         // five entry
         c.setTime(new Date(forecastWeatherList.get(4).getDt() * 1000));
@@ -118,11 +119,60 @@ public class ForecastFragment extends Fragment {
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
         temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(4).getMain().temp)));
-        icon.setImageDrawable(selectIcon(forecastWeatherList.get(4).getWeather().get(0).getIcon()));
+        icon.setImageDrawable(selectIconByName(forecastWeatherList.get(4).getWeather().get(0).getIcon()));
     }
 
     public void populateFiveDays(View v){
+        List<Integer> aveTemps = new ArrayList<>();
+        for (int i = 1; i<=5; i++){
+            aveTemps.add(forecast.getDailyAverageTemp(i));
+        }
 
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE");
+
+        c.add(Calendar.DATE, 1);
+        TextView time = v.findViewById(R.id.entryOneTime);
+        TextView temp = v.findViewById(R.id.entryOneTemperature);
+        ImageView icon = v.findViewById(R.id.entryOneIcon);
+        time.setText(String.valueOf(dateFormat.format(c.getTime())));
+        temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(0)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(0)));
+
+        c.add(Calendar.DATE, 1);
+        time = v.findViewById(R.id.entryTwoTime);
+        temp = v.findViewById(R.id.entryTwoTemperature);
+        icon = v.findViewById(R.id.entryTwoIcon);
+        time.setText(String.valueOf(dateFormat.format(c.getTime())));
+        temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(1)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(1)));
+
+
+        c.add(Calendar.DATE, 1);
+        time = v.findViewById(R.id.entryThreeTime);
+        temp = v.findViewById(R.id.entryThreeTemperature);
+        icon = v.findViewById(R.id.entryThreeIcon);
+        time.setText(String.valueOf(dateFormat.format(c.getTime())));
+        temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(2)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(2)));
+
+
+        c.add(Calendar.DATE, 1);
+        time = v.findViewById(R.id.entryFourTime);
+        temp = v.findViewById(R.id.entryFourTemperature);
+        icon = v.findViewById(R.id.entryFourIcon);
+        time.setText(String.valueOf(dateFormat.format(c.getTime())));
+        temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(3)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(3)));
+
+
+        c.add(Calendar.DATE, 1);
+        time = v.findViewById(R.id.entryFiveTime);
+        temp = v.findViewById(R.id.entryFiveTemperature);
+        icon = v.findViewById(R.id.entryFiveIcon);
+        time.setText(String.valueOf(dateFormat.format(c.getTime())));
+        temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(4)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(4)));
     }
 
 //    public void populateEntry(View v, String position){
@@ -131,7 +181,7 @@ public class ForecastFragment extends Fragment {
 //    }
 
 
-    public Drawable selectIcon(String icon){
+    public Drawable selectIconByName(String icon){
         Resources r = getResources();
         switch (icon) {
             case "01d":
@@ -167,4 +217,34 @@ public class ForecastFragment extends Fragment {
                 return r.getDrawable(R.drawable.unavailable);
         }
     }
+
+    public Drawable selectIconByCondition(String condition){
+        Resources r = getResources();
+        switch (condition) {
+            case "thunderstorm":
+                return r.getDrawable(R.drawable.thunderstorm);
+            case "drizzle":
+                return r.getDrawable(R.drawable.showers);
+            case "rain":
+                return r.getDrawable(R.drawable.rain);
+            case "snow":
+                return r.getDrawable(R.drawable.snow);
+            case "atmosphere":
+                return r.getDrawable(R.drawable.mist);
+            case "clear":
+                return r.getDrawable(R.drawable.clear_sky);
+            case "clouds":
+                return r.getDrawable(R.drawable.scattered_clouds);
+            default:
+                return r.getDrawable(R.drawable.unavailable);
+        }
+    }
 }
+
+// thunderstorm
+// drizzle
+// rain
+// snow
+// atmosphere
+// clear
+// clouds
