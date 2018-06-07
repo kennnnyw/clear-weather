@@ -12,23 +12,23 @@ import java.util.List;
 
 public class ForecastAdapter extends FragmentStatePagerAdapter {
     private static final int NUM_PAGES = 2;
-    private List<ForecastWeather> forecasted;
+    private Forecast forecast;
 
-    public ForecastAdapter(FragmentManager fm, List<ForecastWeather> forecasted) {
+    public ForecastAdapter(FragmentManager fm, Forecast forecast) {
         super(fm);
-        this.forecasted = forecasted;
+        this.forecast = forecast;
     }
 
     @Override
     public Fragment getItem(int position) {
-        if (forecasted == null) {
+        if (forecast == null) {
             return new ForecastFragment();
         } else {
             switch (position) {
                 case 0:
-                    return ForecastFragment.newInstance(forecasted);
+                    return ForecastFragment.newInstance(forecast.getList());
                 case 1:
-                    return new ForecastFragment();
+                    return ForecastFragment.newInstance(forecast);
                 default:
                     return null;
             }

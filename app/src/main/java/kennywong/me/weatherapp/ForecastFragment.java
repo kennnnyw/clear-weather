@@ -10,11 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-
-import org.w3c.dom.Text;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -24,34 +21,48 @@ import java.util.List;
  */
 
 public class ForecastFragment extends Fragment {
-    private List<ForecastWeather> forecast;
+    private List<ForecastWeather> forecastWeatherList;
+    private Forecast forecast;
 
-    public static ForecastFragment newInstance(List<ForecastWeather> forecast){
+    public static ForecastFragment newInstance(List<ForecastWeather> forecastWeatherList){
         ForecastFragment forecastFragment = new ForecastFragment();
         Bundle args = new Bundle();
         // put list into args
-        args.putSerializable("list", (Serializable) forecast);
+        args.putSerializable("list", (Serializable) forecastWeatherList);
+        forecastFragment.setArguments(args);
+        return forecastFragment;
+    }
+
+    public static ForecastFragment newInstance(Forecast forecast){
+        ForecastFragment forecastFragment = new ForecastFragment();
+        Bundle args = new Bundle();
+        // put list into args
+        args.putSerializable("forecast", forecast);
         forecastFragment.setArguments(args);
         return forecastFragment;
     }
 
     public ForecastFragment(){
-        forecast = null;
+        forecastWeatherList = null;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            forecast = (List<ForecastWeather>) getArguments().getSerializable("list");
+            forecastWeatherList = (List<ForecastWeather>) getArguments().getSerializable("list");
+            forecast = (Forecast) getArguments().getSerializable("forecast");
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.forecasts, container, false);
-        if (forecast != null) {
+        if (forecastWeatherList != null) {
             populateThreeHourly(view);
+        }
+        if (forecast != null) {
+            populateFiveDays(view);
         }
         return view;
     }
@@ -60,61 +71,64 @@ public class ForecastFragment extends Fragment {
         Calendar c = Calendar.getInstance();
 
         // first entry
-        c.setTime(new Date(forecast.get(0).getDt() * 1000));
+        c.setTime(new Date(forecastWeatherList.get(0).getDt() * 1000));
         TextView time = v.findViewById(R.id.entryOneTime);
         TextView temp = v.findViewById(R.id.entryOneTemperature);
         ImageView icon = v.findViewById(R.id.entryOneIcon);
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
-        temp.setText(getResources().getString(R.string.current_temperature, (int)forecast.get(0).getMain().temp));
-        icon.setImageDrawable(selectIcon(forecast.get(0).getWeather().get(0).getIcon()));
+        temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(0).getMain().temp)));
+        icon.setImageDrawable(selectIcon(forecastWeatherList.get(0).getWeather().get(0).getIcon()));
 
         // second entry
-        c.setTime(new Date(forecast.get(1).getDt() * 1000));
+        c.setTime(new Date(forecastWeatherList.get(1).getDt() * 1000));
         time = v.findViewById(R.id.entryTwoTime);
         temp = v.findViewById(R.id.entryTwoTemperature);
         icon = v.findViewById(R.id.entryTwoIcon);
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
-        temp.setText(getResources().getString(R.string.current_temperature, (int)forecast.get(1).getMain().temp));
-        icon.setImageDrawable(selectIcon(forecast.get(1).getWeather().get(0).getIcon()));
+        temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(1).getMain().temp)));
+        icon.setImageDrawable(selectIcon(forecastWeatherList.get(1).getWeather().get(0).getIcon()));
 
         // third entry
-        c.setTime(new Date(forecast.get(2).getDt() * 1000));
+        c.setTime(new Date(forecastWeatherList.get(2).getDt() * 1000));
         time = v.findViewById(R.id.entryThreeTime);
         temp = v.findViewById(R.id.entryThreeTemperature);
         icon = v.findViewById(R.id.entryThreeIcon);
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
-        temp.setText(getResources().getString(R.string.current_temperature, (int)forecast.get(2).getMain().temp));
-        icon.setImageDrawable(selectIcon(forecast.get(2).getWeather().get(0).getIcon()));
+        temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(2).getMain().temp)));
+        icon.setImageDrawable(selectIcon(forecastWeatherList.get(2).getWeather().get(0).getIcon()));
 
         // fourth entry
-        time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
+        c.setTime(new Date(forecastWeatherList.get(3).getDt() * 1000));
         time = v.findViewById(R.id.entryFourTime);
         temp = v.findViewById(R.id.entryFourTemperature);
         icon = v.findViewById(R.id.entryFourIcon);
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
-        temp.setText(getResources().getString(R.string.current_temperature, (int)forecast.get(3).getMain().temp));
-        icon.setImageDrawable(selectIcon(forecast.get(3).getWeather().get(0).getIcon()));
+        temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(3).getMain().temp)));
+        icon.setImageDrawable(selectIcon(forecastWeatherList.get(3).getWeather().get(0).getIcon()));
 
         // five entry
-        c.setTime(new Date(forecast.get(4).getDt() * 1000));
+        c.setTime(new Date(forecastWeatherList.get(4).getDt() * 1000));
         time = v.findViewById(R.id.entryFiveTime);
         temp = v.findViewById(R.id.entryFiveTemperature);
         icon = v.findViewById(R.id.entryFiveIcon);
 
         time.setText(getResources().getString(R.string.time, c.get(Calendar.HOUR_OF_DAY)));
-        temp.setText(getResources().getString(R.string.current_temperature, (int)forecast.get(4).getMain().temp));
-        icon.setImageDrawable(selectIcon(forecast.get(4).getWeather().get(0).getIcon()));
+        temp.setText(getResources().getString(R.string.current_temperature, (int) Math.round(forecastWeatherList.get(4).getMain().temp)));
+        icon.setImageDrawable(selectIcon(forecastWeatherList.get(4).getWeather().get(0).getIcon()));
     }
 
-    public void populateEntry(View v, String position){
-        TextView time, temp;
-        ImageView icon;
+    public void populateFiveDays(View v){
 
     }
+
+//    public void populateEntry(View v, String position){
+//        TextView time, temp;
+//        ImageView icon;
+//    }
 
 
     public Drawable selectIcon(String icon){

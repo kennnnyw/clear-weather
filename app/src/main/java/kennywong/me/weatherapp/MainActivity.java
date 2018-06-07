@@ -41,6 +41,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -99,12 +100,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-    }
-
-    public void setupForecasts(List<ForecastWeather> f){
-        forecastsView = findViewById(R.id.forecastsView);
-        pagerAdapter = new ForecastAdapter(getSupportFragmentManager(), f);
-        forecastsView.setAdapter(pagerAdapter);
     }
 
     /**
@@ -232,19 +227,14 @@ public class MainActivity extends AppCompatActivity {
             Forecast f = gson.fromJson(forecastJson, Forecast.class);
             System.out.println(gson.toJson(f));
 
-            List<ForecastWeather> forecasted = f.getPartialList(5);
-            // passing the sub list to the fragment manager
-            setupForecasts(forecasted);
-
-            //for debug
-            for (ForecastWeather w : forecasted){
-                Calendar c = Calendar.getInstance();
-                c.setTime(new Date(w.getDt() * 1000));
-                System.out.println(c.get(Calendar.DAY_OF_MONTH) + " " + c.get(Calendar.MONTH)
-                    + " " + c.get(Calendar.HOUR_OF_DAY) + ":00" + " " + w.getMain().temp + "º"
-                    + " " + w.getWeather().get(0).getMain() + " " + w.getWeather().get(0).getIcon());
-            }
+            setupForecasts(f);
         }
+    }
+
+    public void setupForecasts(Forecast forecast){
+        forecastsView = findViewById(R.id.forecastsView);
+        pagerAdapter = new ForecastAdapter(getSupportFragmentManager(), forecast);
+        forecastsView.setAdapter(pagerAdapter);
     }
 
     /**
