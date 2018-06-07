@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -235,6 +236,8 @@ public class MainActivity extends AppCompatActivity {
         forecastsView = findViewById(R.id.forecastsView);
         pagerAdapter = new ForecastAdapter(getSupportFragmentManager(), forecast);
         forecastsView.setAdapter(pagerAdapter);
+        TabLayout tabLayout = findViewById(R.id.tabDots);
+        tabLayout.setupWithViewPager(forecastsView, true);
     }
 
     /**
