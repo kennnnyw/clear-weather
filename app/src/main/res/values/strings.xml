@@ -1,9 +1,8 @@
 <resources>
     <string name="app_name">Weather App</string>
 
-    <string name="no_location_detected">
-       Could not update location. Make sure location is enabled on the device.
-    </string>
+    <string name="no_location_detected">Could not update location. Make sure location is enabled on the device.</string>
+    <string name="location_disabled">Enable location services for the most up to date forecasts.</string>
 
     <string name="permission_rationale">Location permission is needed for core functionality</string>
     <string name="permission_denied_explanation">Permission was denied, but is needed for core

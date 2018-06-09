@@ -100,7 +100,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        String today = getCurrentDate();
         super.onResume();
+        updateTheme();
+        getLastLocation();
+        ((TextView) findViewById(R.id.dateText)).setText(today);
     }
 
     /**
@@ -300,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
-                            showSnackbar((String) getText(R.string.no_location_detected));
+                            showSnackbar((String) getText(R.string.location_disabled));
                             SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
                             String lastLocation = locations.getString("lastLocation", "London");
                             String lastCountry = locations.getString("lastCountry", "GB");
