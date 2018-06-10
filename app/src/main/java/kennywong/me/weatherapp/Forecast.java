@@ -53,7 +53,7 @@ public class Forecast implements Serializable{
             }
         }
 
-        getDailyConditions(d);
+//        getDailyConditions(d);
         aveTemp /= count;
         return Math.round(aveTemp);
     }

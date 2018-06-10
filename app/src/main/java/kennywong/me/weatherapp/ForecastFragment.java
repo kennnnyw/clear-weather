@@ -137,7 +137,7 @@ public class ForecastFragment extends Fragment {
         ImageView icon = v.findViewById(R.id.entryOneIcon);
         time.setText(String.valueOf(dateFormat.format(c.getTime())));
         temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(0)));
-        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(0)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(1)));
 
         c.add(Calendar.DATE, 1);
         time = v.findViewById(R.id.entryTwoTime);
@@ -145,7 +145,7 @@ public class ForecastFragment extends Fragment {
         icon = v.findViewById(R.id.entryTwoIcon);
         time.setText(String.valueOf(dateFormat.format(c.getTime())));
         temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(1)));
-        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(1)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(2)));
 
 
         c.add(Calendar.DATE, 1);
@@ -154,7 +154,7 @@ public class ForecastFragment extends Fragment {
         icon = v.findViewById(R.id.entryThreeIcon);
         time.setText(String.valueOf(dateFormat.format(c.getTime())));
         temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(2)));
-        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(2)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(3)));
 
 
         c.add(Calendar.DATE, 1);
@@ -163,7 +163,7 @@ public class ForecastFragment extends Fragment {
         icon = v.findViewById(R.id.entryFourIcon);
         time.setText(String.valueOf(dateFormat.format(c.getTime())));
         temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(3)));
-        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(3)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(4)));
 
 
         c.add(Calendar.DATE, 1);
@@ -172,7 +172,7 @@ public class ForecastFragment extends Fragment {
         icon = v.findViewById(R.id.entryFiveIcon);
         time.setText(String.valueOf(dateFormat.format(c.getTime())));
         temp.setText(getResources().getString(R.string.current_temperature, aveTemps.get(4)));
-        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(4)));
+        icon.setImageDrawable(selectIconByCondition(forecast.getDailyConditions(5)));
     }
 
 //    public void populateEntry(View v, String position){
