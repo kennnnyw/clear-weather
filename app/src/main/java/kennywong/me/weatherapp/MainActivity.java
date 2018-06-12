@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,8 +40,10 @@ import org.w3c.dom.Text;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -85,6 +88,35 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        Button refreshWeatherBtn = findViewById(R.id.refreshWeatherButton);
+        refreshWeatherBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                refreshWeatherData();
+            }
+        });
+
+        final SearchView searchBar = findViewById(R.id.searchBar);
+        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                System.out.println("DEBUG: Search term... " + s);
+                getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
+                weatherTask.execute(s);
+
+                getForecastTask forecastTask = new getForecastTask();
+                forecastTask.execute(s);
+
+                searchBar.clearFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
     }
 
     @Override
@@ -100,9 +132,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        String today = getCurrentDate();
         super.onResume();
         updateTheme();
+        View screen = findViewById(R.id.mainContainer);
+        screen.invalidate();
+        String today = getCurrentDate();
         getLastLocation();
         ((TextView) findViewById(R.id.dateText)).setText(today);
     }
@@ -136,6 +170,11 @@ public class MainActivity extends AppCompatActivity {
      * @return JSON string containing weather data for the specified location.
      */
     public String getCurrentWeather(String location){
+        try {
+            location = URLEncoder.encode(location, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         URL url;
         HttpURLConnection conn;
         BufferedReader rd;
@@ -193,6 +232,11 @@ public class MainActivity extends AppCompatActivity {
      * @return JSON string containing forecast data for the specified location.
      */
     public String getForecast(String location){
+        try {
+            location = URLEncoder.encode(location, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         URL url;
         HttpURLConnection conn;
         BufferedReader rd;
@@ -232,6 +276,14 @@ public class MainActivity extends AppCompatActivity {
             Forecast f = gson.fromJson(forecastJson, Forecast.class);
             System.out.println(gson.toJson(f));
 
+            SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = locations.edit();
+            editor.putString("lastLocation", f.getCity().name);
+            editor.putString("lastCountry", f.getCity().country);
+            editor.apply();
+
+            TextView location = findViewById(R.id.locationText);
+            location.setText(f.getCity().name);
             setupForecasts(f);
         }
     }
@@ -279,8 +331,6 @@ public class MainActivity extends AppCompatActivity {
                                 for (int i = 0; i < addresses.size(); i++) {
                                     String locality = addresses.get(i).getLocality();
                                     String country = addresses.get(i).getCountryCode();
-                                    Double latitude = addresses.get(i).getLatitude();
-                                    Double longitude = addresses.get(i).getLongitude();
 
                                     System.out.println(locality);
                                     locationText.setText(locality);
@@ -291,8 +341,6 @@ public class MainActivity extends AppCompatActivity {
                                     SharedPreferences.Editor editor = locations.edit();
                                     editor.putString("lastLocation", locality);
                                     editor.putString("lastCountry", country);
-                                    editor.putString("lastLat", String.valueOf(latitude));
-                                    editor.putString("lastLong", String.valueOf(longitude));
                                     editor.apply();
 
                                     getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
@@ -305,20 +353,24 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Log.w(TAG, "getLastLocation:exception", task.getException());
                             showSnackbar((String) getText(R.string.location_disabled));
-                            SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
-                            String lastLocation = locations.getString("lastLocation", "London");
-                            String lastCountry = locations.getString("lastCountry", "GB");
-                            locationText.setText(lastLocation);
-
-
-                            getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
-                            weatherTask.execute(lastLocation+","+lastCountry);
-
-                            getForecastTask forecastTask = new getForecastTask();
-                            forecastTask.execute(lastLocation+","+lastCountry);
+                            refreshWeatherData();
                         }
                     }
                 });
+    }
+
+    public void refreshWeatherData(){
+        SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
+        String lastLocation = locations.getString("lastLocation", "London");
+        String lastCountry = locations.getString("lastCountry", "GB");
+        locationText.setText(lastLocation);
+
+
+        getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
+        weatherTask.execute(lastLocation+","+lastCountry);
+
+        getForecastTask forecastTask = new getForecastTask();
+        forecastTask.execute(lastLocation+","+lastCountry);
     }
 
     /**

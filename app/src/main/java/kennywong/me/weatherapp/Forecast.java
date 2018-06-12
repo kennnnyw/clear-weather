@@ -13,20 +13,20 @@ import java.util.List;
 
 public class Forecast implements Serializable{
     private List<ForecastWeather> list;
-//    private City city;
+    private City city;
 
-//    class City {
-//        public String name;
-//        public String country;
-//    }
+    class City implements Serializable{
+        public String name;
+        public String country;
+    }
 
     public List<ForecastWeather> getList() {
         return list;
     }
 
-//    public City getCity() {
-//        return city;
-//    }
+    public City getCity() {
+        return city;
+    }
 
     public List<ForecastWeather> getPartialList(int n){
         ArrayList<ForecastWeather> partialForecast = new ArrayList<ForecastWeather>(list.subList(0, n));
