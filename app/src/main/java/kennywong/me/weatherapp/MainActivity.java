@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager forecastsView;
     private PagerAdapter pagerAdapter;
+    private ConstraintLayout mainContainer;
+    private SearchView searchBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +74,18 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ((TextView) findViewById(R.id.dateText)).setText(today);
 
+        // DEBUG
+        SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
+        String lastLocation = locations.getString("lastLocation", "London");
+        String lastCountry = locations.getString("lastCountry", "GB");
+        System.out.println("DEBUG: last location: " + lastLocation);
+        System.out.println("DEBUG: last country: " + lastCountry);
+
+        mainContainer = findViewById(R.id.mainContainer);
+        mainContainer.requestFocus();
+
+        ((TextView) findViewById(R.id.dateText)).setText(today);
         locationText = findViewById(R.id.locationText);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         Button refreshBtn = findViewById(R.id.refreshButton);
@@ -97,7 +110,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final SearchView searchBar = findViewById(R.id.searchBar);
+        searchBar = findViewById(R.id.searchBar);
+        searchBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchBar.onActionViewExpanded();
+            }
+        });
         searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -109,6 +128,9 @@ public class MainActivity extends AppCompatActivity {
                 forecastTask.execute(s);
 
                 searchBar.clearFocus();
+                searchBar.onActionViewCollapsed();
+                mainContainer.requestFocus();
+
                 return true;
             }
 
@@ -126,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         if (!checkPermissions()) {
             requestPermissions();
         } else {
-            getLastLocation();
+            refreshWeatherData();
         }
     }
 
@@ -137,8 +159,19 @@ public class MainActivity extends AppCompatActivity {
         View screen = findViewById(R.id.mainContainer);
         screen.invalidate();
         String today = getCurrentDate();
-        getLastLocation();
+        refreshWeatherData();
         ((TextView) findViewById(R.id.dateText)).setText(today);
+        searchBar.setQuery("", false);
+        searchBar.onActionViewCollapsed();
+        mainContainer.requestFocus();
+    }
+
+    public void genericClickListener(View v){
+        if (v.getId() != R.id.searchBar){
+            searchBar.clearFocus();
+            searchBar.onActionViewCollapsed();
+            mainContainer.requestFocus();
+        }
     }
 
     /**
