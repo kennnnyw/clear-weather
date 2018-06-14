@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -19,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -30,7 +33,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.SearchView;
+import android.support.v7.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -120,7 +123,54 @@ public class MainActivity extends AppCompatActivity {
 //        });
 
         // click listener for the search bar
-        searchBar = findViewById(R.id.searchBar);
+//        searchBar = findViewById(R.id.searchBar);
+//        searchBar.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                searchBar.onActionViewExpanded();
+//            }
+//        });
+//
+//        // event listener for handling search bar behaviour
+//        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String s) {
+//                System.out.println("DEBUG: Search term... " + s);
+//                getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
+//                weatherTask.execute(s);
+//
+//                getForecastTask forecastTask = new getForecastTask();
+//                forecastTask.execute(s);
+//
+//                searchBar.clearFocus();
+//                searchBar.onActionViewCollapsed();
+//                mainContainer.requestFocus();
+//
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String s) {
+//                return false;
+//            }
+//        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actions, menu);
+
+        for(int i = 0; i < menu.size(); i++){
+            Drawable drawable = menu.getItem(i).getIcon();
+            if(drawable != null) {
+                drawable.mutate();
+                drawable.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+            }
+        }
+
+        // handle search bar behaviour
+        searchBar = (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,9 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 forecastTask.execute(s);
 
                 searchBar.clearFocus();
-                searchBar.onActionViewCollapsed();
                 mainContainer.requestFocus();
-
                 return true;
             }
 
@@ -151,12 +199,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.actions, menu);
         return true;
     }
 
@@ -209,8 +251,8 @@ public class MainActivity extends AppCompatActivity {
         String today = getCurrentDate();
         refreshWeatherData();
         ((TextView) findViewById(R.id.dateText)).setText(today);
-        searchBar.setQuery("", false);
-        searchBar.onActionViewCollapsed();
+//        searchBar.setQuery("", false);
+//        searchBar.onActionViewCollapsed();
         mainContainer.requestFocus();
     }
 
