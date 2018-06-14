@@ -21,9 +21,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SearchView;
@@ -75,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         // DEBUG
         SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
         String lastLocation = locations.getString("lastLocation", "London");
@@ -88,28 +94,32 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.dateText)).setText(today);
         locationText = findViewById(R.id.locationText);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        Button refreshBtn = findViewById(R.id.refreshButton);
-        refreshBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!checkPermissions()) {
-                    requestPermissions();
-                } else {
-                    getLastLocation();
-                    Toast toast = Toast.makeText(getApplicationContext(), "Refreshing...", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-            }
-        });
 
-        Button refreshWeatherBtn = findViewById(R.id.refreshWeatherButton);
-        refreshWeatherBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                refreshWeatherData();
-            }
-        });
+//        // click listener for the refresh location button
+//        Button refreshBtn = findViewById(R.id.refreshButton);
+//        refreshBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (!checkPermissions()) {
+//                    requestPermissions();
+//                } else {
+//                    getLastLocation();
+//                    Toast toast = Toast.makeText(getApplicationContext(), "Refreshing...", Toast.LENGTH_SHORT);
+//                    toast.show();
+//                }
+//            }
+//        });
 
+        // click listener for the refresh weather data button
+//        Button refreshWeatherBtn = findViewById(R.id.refreshWeatherButton);
+//        refreshWeatherBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                refreshWeatherData();
+//            }
+//        });
+
+        // click listener for the search bar
         searchBar = findViewById(R.id.searchBar);
         searchBar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
                 searchBar.onActionViewExpanded();
             }
         });
+
+        // event listener for handling search bar behaviour
         searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -139,6 +151,42 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.actions, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_refresh:
+                // User chose the "refresh" item, refresh weather data for the current location
+                refreshWeatherData();
+                Toast toast = Toast.makeText(getApplicationContext(), "Refreshing...", Toast.LENGTH_SHORT);
+                toast.show();
+                return true;
+
+            case R.id.action_location:
+                // User chose the "location" action, update the current location
+                if (!checkPermissions()) {
+                    requestPermissions();
+                } else {
+                    getLastLocation();
+                    toast = Toast.makeText(getApplicationContext(), "Updating Location...", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
     @Override
@@ -166,6 +214,12 @@ public class MainActivity extends AppCompatActivity {
         mainContainer.requestFocus();
     }
 
+    /**
+     * This click listener is attached to various components in the activity. The main purpose
+     * of this is to allow for the ability to collapse the search bar and hide the keyboard when
+     * the user clicks "out" of these two components.
+     * @param v
+     */
     public void genericClickListener(View v){
         if (v.getId() != R.id.searchBar){
             searchBar.clearFocus();
