@@ -30,7 +30,7 @@
     </style>
 
     <style name="ToolbarTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:textColorPrimary">@color/accent</item>
+        <item name="android:textColorPrimary">@color/black</item>
         <item name="colorControlNormal">@color/accent</item>
         <item name="colorControlHighlight">@color/white</item>
     </style>

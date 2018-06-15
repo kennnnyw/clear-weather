@@ -28,7 +28,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.support.v7.widget.SearchView;
+//import android.support.v7.widget.SearchView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,62 +92,37 @@ public class MainActivity extends AppCompatActivity {
         locationText = findViewById(R.id.locationText);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-//        // click listener for the refresh location button
-//        Button refreshBtn = findViewById(R.id.refreshButton);
-//        refreshBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (!checkPermissions()) {
-//                    requestPermissions();
-//                } else {
-//                    getLastLocation();
-//                    Toast toast = Toast.makeText(getApplicationContext(), "Refreshing...", Toast.LENGTH_SHORT);
-//                    toast.show();
-//                }
-//            }
-//        });
+        searchBar = findViewById(R.id.action_search);
+        searchBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchBar.onActionViewExpanded();
+            }
+        });
 
-        // click listener for the refresh weather data button
-//        Button refreshWeatherBtn = findViewById(R.id.refreshWeatherButton);
-//        refreshWeatherBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                refreshWeatherData();
-//            }
-//        });
+        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                System.out.println("DEBUG: Search term... " + s);
+                getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
+                weatherTask.execute(s);
 
-        // click listener for the search bar
-//        searchBar = findViewById(R.id.searchBar);
-//        searchBar.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                searchBar.onActionViewExpanded();
-//            }
-//        });
-//
-//        // event listener for handling search bar behaviour
-//        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String s) {
-//                System.out.println("DEBUG: Search term... " + s);
-//                getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
-//                weatherTask.execute(s);
-//
-//                getForecastTask forecastTask = new getForecastTask();
-//                forecastTask.execute(s);
-//
-//                searchBar.clearFocus();
-//                searchBar.onActionViewCollapsed();
-//                mainContainer.requestFocus();
-//
-//                return true;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String s) {
-//                return false;
-//            }
-//        });
+                getForecastTask forecastTask = new getForecastTask();
+                forecastTask.execute(s);
+
+                searchBar.clearFocus();
+                searchBar.onActionViewCollapsed();
+                searchBar.setIconified(true);
+                searchBar.setActivated(false);
+                mainContainer.requestFocus();
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
     }
 
     @Override
@@ -161,38 +137,6 @@ public class MainActivity extends AppCompatActivity {
                 drawable.setColorFilter(getResources().getColor(R.color.accent), PorterDuff.Mode.SRC_ATOP);
             }
         }
-
-        // handle search bar behaviour
-        searchBar = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchBar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                searchBar.onActionViewExpanded();
-            }
-        });
-
-        // event listener for handling search bar behaviour
-        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                System.out.println("DEBUG: Search term... " + s);
-                getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
-                weatherTask.execute(s);
-
-                getForecastTask forecastTask = new getForecastTask();
-                forecastTask.execute(s);
-
-                searchBar.clearFocus();
-                searchBar.onActionViewCollapsed();
-                mainContainer.requestFocus();
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                return false;
-            }
-        });
         return true;
     }
 
@@ -215,6 +159,38 @@ public class MainActivity extends AppCompatActivity {
                     toast = Toast.makeText(getApplicationContext(), "Updating Location...", Toast.LENGTH_SHORT);
                     toast.show();
                 }
+                return true;
+
+            case R.id.action_search:
+                searchBar = (SearchView) item.getActionView();
+                searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String s) {
+                        System.out.println("DEBUG: Search term... " + s);
+                        getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
+                        weatherTask.execute(s);
+
+                        getForecastTask forecastTask = new getForecastTask();
+                        forecastTask.execute(s);
+
+                        searchBar.clearFocus();
+                        searchBar.onActionViewCollapsed();
+                        searchBar.setIconified(true);
+                        searchBar.setActivated(false);
+                        mainContainer.requestFocus();
+
+                        System.out.println("Debug: iconified " + searchBar.isIconified());
+                        System.out.println("Debug: activated " + searchBar.isActivated());
+                        System.out.println("Debug: focused " + searchBar.isFocused());
+                        System.out.println("Debug: enabled " + searchBar.isEnabled());
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String s) {
+                        return false;
+                    }
+                });
                 return true;
 
             default:
@@ -255,8 +231,11 @@ public class MainActivity extends AppCompatActivity {
      * @param v
      */
     public void genericClickListener(View v){
-        if (v.getId() != R.id.searchBar){
+        if (v.getId() != R.id.action_search){
             searchBar.clearFocus();
+            searchBar.onActionViewCollapsed();
+            searchBar.setIconified(true);
+            searchBar.setActivated(false);
             mainContainer.requestFocus();
         }
     }
