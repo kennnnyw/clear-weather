@@ -18,21 +18,16 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.support.v7.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +38,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -53,9 +47,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -82,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // DEBUG
@@ -165,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             Drawable drawable = menu.getItem(i).getIcon();
             if(drawable != null) {
                 drawable.mutate();
-                drawable.setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
+                drawable.setColorFilter(getResources().getColor(R.color.accent), PorterDuff.Mode.SRC_ATOP);
             }
         }
 
@@ -190,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
                 forecastTask.execute(s);
 
                 searchBar.clearFocus();
+                searchBar.onActionViewCollapsed();
                 mainContainer.requestFocus();
                 return true;
             }
@@ -251,8 +245,6 @@ public class MainActivity extends AppCompatActivity {
         String today = getCurrentDate();
         refreshWeatherData();
         ((TextView) findViewById(R.id.dateText)).setText(today);
-//        searchBar.setQuery("", false);
-//        searchBar.onActionViewCollapsed();
         mainContainer.requestFocus();
     }
 
@@ -265,7 +257,6 @@ public class MainActivity extends AppCompatActivity {
     public void genericClickListener(View v){
         if (v.getId() != R.id.searchBar){
             searchBar.clearFocus();
-            searchBar.onActionViewCollapsed();
             mainContainer.requestFocus();
         }
     }
