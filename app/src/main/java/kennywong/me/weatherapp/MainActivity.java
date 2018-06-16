@@ -25,12 +25,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 //import android.support.v7.widget.SearchView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -313,6 +315,13 @@ public class MainActivity extends AppCompatActivity {
 
             currentTempText.setText(getResources().getString(R.string.current_temperature, currentTemp));
             highLowText.setText(getResources().getString(R.string.high_low_temperature, low, high));
+
+            TextView weather = findViewById(R.id.weatherText);
+            String[] words = w.getWeather().get(0).getDescription().split(" ");
+            for (int i = 0; i < words.length; i++) {
+                words[i] = words[i].substring(0,1).toUpperCase() + words[i].substring(1).toLowerCase();
+            }
+            weather.setText(TextUtils.join(" ", words));
         }
     }
 
@@ -460,7 +469,6 @@ public class MainActivity extends AppCompatActivity {
         String lastLocation = locations.getString("lastLocation", "London");
         String lastCountry = locations.getString("lastCountry", "GB");
         locationText.setText(lastLocation);
-
 
         getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
         weatherTask.execute(lastLocation+","+lastCountry);
