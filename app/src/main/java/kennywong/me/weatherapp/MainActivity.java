@@ -81,10 +81,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        celsiusBtn = findViewById(R.id.celsiusButton);
-        fahrBtn = findViewById(R.id.fahrButton);
-        setUnitPrefs();
-
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -143,6 +139,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        celsiusBtn = findViewById(R.id.celsiusButton);
+        fahrBtn = findViewById(R.id.fahrButton);
+        setUnitPrefs();
+        
         // handle unit preference buttons
         celsiusBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     public void setUnitPrefs(){
         SharedPreferences prefs = getSharedPreferences("prefs", Context.MODE_PRIVATE);
         units = prefs.getString("units", CELSIUS);
-        if (units == CELSIUS){
+        if (units.equals(CELSIUS)){
             celsiusBtn.setTextColor(getResources().getColor(R.color.white));
             fahrBtn.setTextColor(getResources().getColor(R.color.accent));
         } else {
