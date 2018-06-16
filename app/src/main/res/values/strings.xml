@@ -17,4 +17,6 @@
     <string name="refresh_action">Refresh</string>
     <string name="location_action">Use my location</string>
     <string name="search_action">Search</string>
+
+    <string name="invalid_search">Could not retrieve data for \"%1$s\", please try again</string>
 </resources>

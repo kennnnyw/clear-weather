@@ -11,7 +11,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -23,7 +22,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -32,8 +30,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 //import android.support.v7.widget.SearchView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,19 +52,20 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
-import static kennywong.me.weatherapp.R.id.action_settings;
-
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private FusedLocationProviderClient fusedLocationClient;
     protected Location lastLocation;
 
+
+    private final String BASE_URL = "http://api.openweathermap.org/data/2.5/";
+    private final String CELSIUS = "&units=metric";
+    private final String FAHRENHEIT = "&units=imperial";
+
+    private String searchTerm;
+
     private TextView locationText;
-
-    private final String baseURL = "http://api.openweathermap.org/data/2.5/";
-    private final String celsius = "&units=metric";
-
     private ViewPager forecastsView;
     private PagerAdapter pagerAdapter;
     private ConstraintLayout mainContainer;
@@ -125,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 getForecastTask forecastTask = new getForecastTask();
                 forecastTask.execute(s);
 
+                searchTerm = s;
                 searchBar.clearFocus();
                 searchBar.onActionViewCollapsed();
                 searchBar.setIconified(true);
@@ -271,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
         URL url;
         HttpURLConnection conn;
         BufferedReader rd;
-        String fullURL = baseURL + "weather?q=" + location + celsius + "&appid=" + getString(R.string.open_weather_api_key);
+        String fullURL = BASE_URL + "weather?q=" + location + CELSIUS + "&appid=" + getString(R.string.open_weather_api_key);
         System.out.println("Sending data to: " + fullURL);
         String line;
         String result = "";
@@ -329,6 +327,11 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // no data was returned, so leave the UI as it is.
                 System.out.println("DEBUG: no weather data");
+
+                // display a toast message to let the user know that the search request failed.
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        getResources().getString(R.string.invalid_search, searchTerm), Toast.LENGTH_SHORT);
+                toast.show();
             }
         }
     }
@@ -348,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
         URL url;
         HttpURLConnection conn;
         BufferedReader rd;
-        String fullURL = baseURL + "forecast?q=" + location + celsius + "&appid=" + getString(R.string.open_weather_api_key);
+        String fullURL = BASE_URL + "forecast?q=" + location + CELSIUS + "&appid=" + getString(R.string.open_weather_api_key);
         System.out.println("Sending data to: " + fullURL);
         String line;
         String result = "";
@@ -399,6 +402,11 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 // no data was returned, so leave the UI as it is.
                 System.out.println("DEBUG: no forecast data");
+
+                // display a toast message to let the user know that the search request failed.
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        getResources().getString(R.string.invalid_search, searchTerm), Toast.LENGTH_SHORT);
+                toast.show();
             }
         }
     }
