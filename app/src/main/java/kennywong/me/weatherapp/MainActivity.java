@@ -303,25 +303,33 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String weatherJson) {
-            // Update the UI to show correct temperature values.
-            Gson gson = new Gson();
-            CurrentWeather w = gson.fromJson(weatherJson, CurrentWeather.class);
-            int currentTemp = (int) Math.round(w.getMain().temp);
-            int high = w.getMain().temp_max;
-            int low = w.getMain().temp_min;
+            // check if the http request returned any weather data
+            // if data was returned, then refresh the UI with updated data
+            if (weatherJson != "") {
+                // Update the UI to show correct temperature values.
+                Gson gson = new Gson();
+                CurrentWeather w = gson.fromJson(weatherJson, CurrentWeather.class);
+                int currentTemp = (int) Math.round(w.getMain().temp);
+                int high = w.getMain().temp_max;
+                int low = w.getMain().temp_min;
 
-            TextView currentTempText = findViewById(R.id.currentTempText);
-            TextView highLowText = findViewById(R.id.highLowText);
+                TextView currentTempText = findViewById(R.id.currentTempText);
+                TextView highLowText = findViewById(R.id.highLowText);
 
-            currentTempText.setText(getResources().getString(R.string.current_temperature, currentTemp));
-            highLowText.setText(getResources().getString(R.string.high_low_temperature, low, high));
+                currentTempText.setText(getResources().getString(R.string.current_temperature, currentTemp));
+                highLowText.setText(getResources().getString(R.string.high_low_temperature, low, high));
 
-            TextView weather = findViewById(R.id.weatherText);
-            String[] words = w.getWeather().get(0).getDescription().split(" ");
-            for (int i = 0; i < words.length; i++) {
-                words[i] = words[i].substring(0,1).toUpperCase() + words[i].substring(1).toLowerCase();
+                // Display a description of current weather conditions
+                TextView weather = findViewById(R.id.weatherText);
+                String[] words = w.getWeather().get(0).getDescription().split(" ");
+                for (int i = 0; i < words.length; i++) {
+                    words[i] = words[i].substring(0, 1).toUpperCase() + words[i].substring(1).toLowerCase();
+                }
+                weather.setText(TextUtils.join(" ", words));
+            } else {
+                // no data was returned, so leave the UI as it is.
+                System.out.println("DEBUG: no weather data");
             }
-            weather.setText(TextUtils.join(" ", words));
         }
     }
 
@@ -372,19 +380,26 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String forecastJson) {
-            Gson gson = new Gson();
-            Forecast f = gson.fromJson(forecastJson, Forecast.class);
-            System.out.println(gson.toJson(f));
+            // check if the http request returned any forecast data
+            // if data was returned, then refresh the UI with updated data
+            if (forecastJson != "") {
+                Gson gson = new Gson();
+                Forecast f = gson.fromJson(forecastJson, Forecast.class);
+                System.out.println(gson.toJson(f));
 
-            SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = locations.edit();
-            editor.putString("lastLocation", f.getCity().name);
-            editor.putString("lastCountry", f.getCity().country);
-            editor.apply();
+                SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = locations.edit();
+                editor.putString("lastLocation", f.getCity().name);
+                editor.putString("lastCountry", f.getCity().country);
+                editor.apply();
 
-            TextView location = findViewById(R.id.locationText);
-            location.setText(f.getCity().name);
-            setupForecasts(f);
+                TextView location = findViewById(R.id.locationText);
+                location.setText(f.getCity().name);
+                setupForecasts(f);
+            } else {
+                // no data was returned, so leave the UI as it is.
+                System.out.println("DEBUG: no forecast data");
+            }
         }
     }
 
