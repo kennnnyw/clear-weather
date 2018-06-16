@@ -30,6 +30,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 //import android.support.v7.widget.SearchView;
+import android.widget.Button;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,11 +58,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private FusedLocationProviderClient fusedLocationClient;
     protected Location lastLocation;
-
-
+    
     private final String BASE_URL = "http://api.openweathermap.org/data/2.5/";
     private final String CELSIUS = "&units=metric";
     private final String FAHRENHEIT = "&units=imperial";
+    private String units = CELSIUS;
 
     private String searchTerm;
 
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private PagerAdapter pagerAdapter;
     private ConstraintLayout mainContainer;
     private SearchView searchBar;
+    private Button celsiusBtn, fahrBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        celsiusBtn = findViewById(R.id.celsiusButton);
+        fahrBtn = findViewById(R.id.fahrButton);
+        setUnitPrefs();
 
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -136,6 +142,55 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        // handle unit preference buttons
+        celsiusBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                units = CELSIUS;
+                saveUnitPrefs();
+                celsiusBtn.setTextColor(getResources().getColor(R.color.white));
+                fahrBtn.setTextColor(getResources().getColor(R.color.accent));
+                refreshWeatherData();
+            }
+        });
+
+        fahrBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                units = FAHRENHEIT;
+                saveUnitPrefs();
+                fahrBtn.setTextColor(getResources().getColor(R.color.white));
+                celsiusBtn.setTextColor(getResources().getColor(R.color.accent));
+                refreshWeatherData();
+            }
+        });
+    }
+
+    /**
+     * Saves the user's unit preferences (celsius or fahrenheit) to a SharedPreferences file
+     */
+    public void saveUnitPrefs(){
+        SharedPreferences prefs = getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("units", units);
+        editor.apply();
+    }
+
+    /**
+     * Retrieves the user's unit preferences from a SharedPreferences file and updates the
+     * styling of the buttons accordingly.
+     */
+    public void setUnitPrefs(){
+        SharedPreferences prefs = getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        units = prefs.getString("units", CELSIUS);
+        if (units == CELSIUS){
+            celsiusBtn.setTextColor(getResources().getColor(R.color.white));
+            fahrBtn.setTextColor(getResources().getColor(R.color.accent));
+        } else {
+            fahrBtn.setTextColor(getResources().getColor(R.color.white));
+            celsiusBtn.setTextColor(getResources().getColor(R.color.accent));
+        }
     }
 
     /**
@@ -196,7 +251,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-
         if (!checkPermissions()) {
             requestPermissions();
         } else {
@@ -211,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
         View screen = findViewById(R.id.mainContainer);
         screen.invalidate();
         String today = getCurrentDate();
+        setUnitPrefs();
         refreshWeatherData();
         ((TextView) findViewById(R.id.dateText)).setText(today);
         mainContainer.requestFocus();
@@ -269,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
         URL url;
         HttpURLConnection conn;
         BufferedReader rd;
-        String fullURL = BASE_URL + "weather?q=" + location + CELSIUS + "&appid=" + getString(R.string.open_weather_api_key);
+        String fullURL = BASE_URL + "weather?q=" + location + units + "&appid=" + getString(R.string.open_weather_api_key);
         System.out.println("Sending data to: " + fullURL);
         String line;
         String result = "";
@@ -308,8 +363,8 @@ public class MainActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 CurrentWeather w = gson.fromJson(weatherJson, CurrentWeather.class);
                 int currentTemp = (int) Math.round(w.getMain().temp);
-                int high = w.getMain().temp_max;
-                int low = w.getMain().temp_min;
+                int high = (int) Math.round(w.getMain().temp_max);
+                int low = (int) Math.round(w.getMain().temp_min);
 
                 TextView currentTempText = findViewById(R.id.currentTempText);
                 TextView highLowText = findViewById(R.id.highLowText);
@@ -351,7 +406,7 @@ public class MainActivity extends AppCompatActivity {
         URL url;
         HttpURLConnection conn;
         BufferedReader rd;
-        String fullURL = BASE_URL + "forecast?q=" + location + CELSIUS + "&appid=" + getString(R.string.open_weather_api_key);
+        String fullURL = BASE_URL + "forecast?q=" + location + units + "&appid=" + getString(R.string.open_weather_api_key);
         System.out.println("Sending data to: " + fullURL);
         String line;
         String result = "";
