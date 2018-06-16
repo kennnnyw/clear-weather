@@ -11,6 +11,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.menu.ActionMenuItem;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -29,6 +31,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 //import android.support.v7.widget.SearchView;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,6 +53,8 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+
+import static kennywong.me.weatherapp.R.id.action_settings;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -78,13 +83,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        // DEBUG
-        SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
-        String lastLocation = locations.getString("lastLocation", "London");
-        String lastCountry = locations.getString("lastCountry", "GB");
-        System.out.println("DEBUG: last location: " + lastLocation);
-        System.out.println("DEBUG: last country: " + lastCountry);
-
         mainContainer = findViewById(R.id.mainContainer);
         mainContainer.requestFocus();
 
@@ -92,8 +90,15 @@ public class MainActivity extends AppCompatActivity {
         locationText = findViewById(R.id.locationText);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // handle search bar behaviour
         searchBar = findViewById(R.id.action_search);
+
         searchBar.setOnClickListener(new View.OnClickListener() {
+            /**
+             * This event fires when any part of the search view is clicked/touched.
+             * It applies focus to the search view and brings up the keyboard.
+             * @param view the component that has been clicked/touched (the search view)
+             */
             @Override
             public void onClick(View view) {
                 searchBar.onActionViewExpanded();
@@ -101,6 +106,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            /**
+             * This event fires whenever the query in the search view is submitted. The search term
+             * is used as a parameter to fetch weather and forecast data. This method also removes
+             * focus from the search view once the submit button has been pressed.
+             * @param s the current string in the search view, represents a location that the user
+             *          wishes to find weather data about.
+             * @return true if the submit button has been pressed.
+             */
             @Override
             public boolean onQueryTextSubmit(String s) {
                 System.out.println("DEBUG: Search term... " + s);
@@ -125,11 +138,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Responsible for creating the options menu in the toolbar.
+     * @param menu the menu that is being created
+     * @return true if the menu has been created successfully.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.actions, menu);
 
+        // set the colours of the icons in the toolbar
         for(int i = 0; i < menu.size(); i++){
             Drawable drawable = menu.getItem(i).getIcon();
             if(drawable != null) {
@@ -140,6 +159,11 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Responsible for handling the button actions for menu items.
+     * @param item the menu item that has been pressed by the user.
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -159,38 +183,6 @@ public class MainActivity extends AppCompatActivity {
                     toast = Toast.makeText(getApplicationContext(), "Updating Location...", Toast.LENGTH_SHORT);
                     toast.show();
                 }
-                return true;
-
-            case R.id.action_search:
-                searchBar = (SearchView) item.getActionView();
-                searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                    @Override
-                    public boolean onQueryTextSubmit(String s) {
-                        System.out.println("DEBUG: Search term... " + s);
-                        getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
-                        weatherTask.execute(s);
-
-                        getForecastTask forecastTask = new getForecastTask();
-                        forecastTask.execute(s);
-
-                        searchBar.clearFocus();
-                        searchBar.onActionViewCollapsed();
-                        searchBar.setIconified(true);
-                        searchBar.setActivated(false);
-                        mainContainer.requestFocus();
-
-                        System.out.println("Debug: iconified " + searchBar.isIconified());
-                        System.out.println("Debug: activated " + searchBar.isActivated());
-                        System.out.println("Debug: focused " + searchBar.isFocused());
-                        System.out.println("Debug: enabled " + searchBar.isEnabled());
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onQueryTextChange(String s) {
-                        return false;
-                    }
-                });
                 return true;
 
             default:
@@ -387,6 +379,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sets up the view pager and populates it with forecast information about the currently
+     * specified location
+     * @param forecast contains forecast information about the current location.
+     */
     public void setupForecasts(Forecast forecast){
         forecastsView = findViewById(R.id.forecastsView);
         pagerAdapter = new ForecastAdapter(getSupportFragmentManager(), forecast);

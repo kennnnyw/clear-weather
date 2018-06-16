@@ -13,4 +13,10 @@
         android:icon="@drawable/location"
         android:title="@string/location_action"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/settings"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom|collapseActionView"/>
 </menu>
