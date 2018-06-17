@@ -81,10 +81,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        celsiusBtn = findViewById(R.id.celsiusButton);
-        fahrBtn = findViewById(R.id.fahrButton);
-        setUnitPrefs();
-
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -143,6 +139,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        celsiusBtn = findViewById(R.id.celsiusButton);
+        fahrBtn = findViewById(R.id.fahrButton);
+        setUnitPrefs();
+
         // handle unit preference buttons
         celsiusBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     public void setUnitPrefs(){
         SharedPreferences prefs = getSharedPreferences("prefs", Context.MODE_PRIVATE);
         units = prefs.getString("units", CELSIUS);
-        if (units == CELSIUS){
+        if (units.equals(CELSIUS)){
             celsiusBtn.setTextColor(getResources().getColor(R.color.white));
             fahrBtn.setTextColor(getResources().getColor(R.color.accent));
         } else {
@@ -451,8 +451,7 @@ public class MainActivity extends AppCompatActivity {
                 editor.putString("lastCountry", f.getCity().country);
                 editor.apply();
 
-                TextView location = findViewById(R.id.locationText);
-                location.setText(f.getCity().name);
+                locationText.setText(getResources().getString(R.string.current_location, f.getCity().name, f.getCity().country));
                 setupForecasts(f);
             } else {
                 // no data was returned, so leave the UI as it is.
@@ -516,7 +515,7 @@ public class MainActivity extends AppCompatActivity {
                                     String country = addresses.get(i).getCountryCode();
 
                                     System.out.println(locality);
-                                    locationText.setText(locality);
+                                    locationText.setText(getResources().getString(R.string.current_location, locality, country));
                                     // Save the location into a SharedPreferences file.
                                     // This location will be displayed in the UI if location is services
                                     // are disabled on next launch.
@@ -546,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences locations = getSharedPreferences("locations", Context.MODE_PRIVATE);
         String lastLocation = locations.getString("lastLocation", "London");
         String lastCountry = locations.getString("lastCountry", "GB");
-        locationText.setText(lastLocation);
+        locationText.setText(getResources().getString(R.string.current_location, lastLocation, lastCountry));
 
         getCurrentWeatherTask weatherTask = new getCurrentWeatherTask();
         weatherTask.execute(lastLocation+","+lastCountry);
