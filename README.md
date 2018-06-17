@@ -28,6 +28,7 @@ Clear Weather is a minimal weather app for Android devices. The app displays cur
 <p align="center">
 <img src="screenshots/screenshot_search.png" height="600" width="337.5">
 </p>
+
 # Installation
 
 The app requires an API key to be able to retrieve weather data.
